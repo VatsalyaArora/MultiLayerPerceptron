@@ -29,18 +29,12 @@ Loss Function: Mean Squared Error (MSE) for regression-to-classification mapping
 /finance_model: Pre-trained weights for immediate inference.
 
 🏃 How to Run
+
 Train the Model:
-
-Bash
-
 python -m Examples.TrainModel
+
 Run Inference:
-
-Bash
-
 python Application/Predictor.py
+
 Run Unit Tests:
-
-Bash
-
 python unittesting.py
