@@ -1,34 +1,24 @@
 import numpy as np
+import pandas as pd
 from Core.WeightMatrix import WeightMat
 from Core.Engine import NestedLayers
 from Core.Losses import MSELoss
 
-# --- 1. GENERATE LABELED DATA ---
-def generate_labeled_data(samples=100):
-    X = []
-    Y = []
-    for _ in range(samples // 2):
-        # Set A: "Approved" (Target 0) - High Income/Credit, Low Debt
-        good_profile = np.random.uniform(0.7, 1.0, 10) 
-        good_profile[2] = np.random.uniform(0.0, 0.05) # Force Low Debt
-        X.append(good_profile)
-        Y.append([0.0])
-        
-        print(f"Good Profile Value: {good_profile} | good_profile[2] (Debt): {good_profile[2]:.4f}")
+seed = 42
 
-        # Set B: "Denied" (Target 1) - Low Income/Credit, High Debt
-        bad_profile = np.random.uniform(0.0, 0.4, 10)
-        bad_profile[2] = np.random.uniform(0.95, 1.0) # Force High Debt
-        X.append(bad_profile)
-        Y.append([1.0])
+data = np.loadtxt("Data/data.csv", delimiter=",", skiprows=1)
+X = data[:, :10]
+Y = data[:, 11:12] 
 
+rng = np.random.default_rng(seed)
+idx = rng.permutation(len(X))
+train, test = idx[:8000], idx[8000:]
+X_train, Y_train = X[train], Y[train]
+X_test,  Y_test  = X[test],  Y[test]
 
-    
-    return np.array(X), np.array(Y)
+learning_rate = 0.5
 
-X_train, Y_train = generate_labeled_data(200)
-
-learning_rate = 0.05
+np.random.seed(0)
 
 model = NestedLayers()
 model.add_layer(WeightMat(10, 7),   limit_type = 'relu')
@@ -49,6 +39,9 @@ for epoch in range(5000):
 
     if epoch % 10 == 0:
         print(f"Epoch {epoch}, Loss: {loss:.6f}")
+
+test_pred = (model.forward(X_test) > 0.5).astype(int)
+print("Test accuracy:", (test_pred == Y_test).mean())
 
 print(model.forward(np.ones((1, 10))))
 model.save_model("finance_model")

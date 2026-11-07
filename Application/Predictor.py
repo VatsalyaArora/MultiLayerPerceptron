@@ -17,28 +17,17 @@ def run_prediction():
     
     print("\n--- Running Prediction ---")
 
-    user_data = np.array([[
-        0.9, # Income Level (normalized) 0.05
-        0.9, # Credit Score (normalized) 0.2
-        0.9, # Debt-to-Income Ratio (normalized) 0.3
-        0.6, # Employment Stability (normalized) 0.03
-        0.4, # Age (normalized) 0.01
-        0.6, # Savings (normalized) 0.1 
-        0.1, # Open Loans (normalized) 0.1
-        0.5, # Payment History (normalized) 0.05
-        0.1, # Requested Amount (normalized) 0.15
-        1.0  # Residence 0.01
-    ]])
-
-    predicton = app_model.forward(user_data)
-    risk_score = predicton[0, 0]
-
-    print(f"Predicted Risk Score: {risk_score:.4f}")
-    if risk_score > 0.5:
-        print("Status: HIGH RISK - Manual Review Required")
-    else:
-        print("Status: LOW RISK - Auto-Approved")
-    print(app_model.forward(np.ones((1, 10))))
+    data = np.loadtxt("Data/ToPredict.csv", delimiter=",", skiprows=1)
+    X = data[:, :10]          
+    
+    risk_score = app_model.forward(X).ravel()
+    
+    for i in range(5):
+        print(f"Predicted Risk Score: {risk_score[i]:.4f}")
+        if risk_score[i] > 0.5:
+            print("Status: HIGH RISK - Manual Review Required")
+        else:
+            print("Status: LOW RISK - Auto-Approved")
 
 if __name__ == "__main__":
     run_prediction()
